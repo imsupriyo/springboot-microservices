@@ -24,9 +24,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public DepartmentDTO getDepartment(Long departmentId) {
-        Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(()->new ResourceNotFoundException("department", "departmentId", departmentId));
+    public DepartmentDTO getDepartment(String departmentCode) {
+        Department department = departmentRepository.findByDepartmentCode(departmentCode)
+                .orElseThrow(() -> new ResourceNotFoundException("department", "departmentCode", departmentCode));
         return modelMapper.map(department, DepartmentDTO.class);
     }
 }

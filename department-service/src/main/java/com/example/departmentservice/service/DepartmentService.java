@@ -5,5 +5,5 @@ import com.example.departmentservice.DTO.DepartmentDTO;
 public interface DepartmentService {
     DepartmentDTO saveDepartment(DepartmentDTO departmentDTO);
 
-    DepartmentDTO getDepartment(Long departmentId);
+    DepartmentDTO getDepartment(String departmentCode);
 }
