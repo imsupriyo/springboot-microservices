@@ -3,10 +3,12 @@ package com.example.employeeservice.service.impl;
 import com.example.employeeservice.dto.APIResponseDTO;
 import com.example.employeeservice.dto.DepartmentDTO;
 import com.example.employeeservice.dto.EmployeeDTO;
+import com.example.employeeservice.dto.OrganizationDTO;
 import com.example.employeeservice.entity.Employee;
 import com.example.employeeservice.exception.ResourceNotFoundException;
 import com.example.employeeservice.repository.EmployeeRepository;
 import com.example.employeeservice.service.APIClient;
+import com.example.employeeservice.service.APIClientOrganizationService;
 import com.example.employeeservice.service.EmployeeService;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,8 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -24,6 +28,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     //    private RestTemplate restTemplate;
 //    private WebClient webClient;
     private APIClient apiClient;
+    private APIClientOrganizationService clientOrganizationService;
 
 
     @Override
@@ -53,10 +58,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 //                .block();
 
         DepartmentDTO departmentDTO = apiClient.getDepartment(employee.getDepartmentCode());
-
+        OrganizationDTO organizationDTO = clientOrganizationService.getOrganization(employee.getOrganizationCode());
         return APIResponseDTO.builder()
                 .employee(modelMapper.map(employee, EmployeeDTO.class))
                 .department(departmentDTO)
+                .organization(organizationDTO)
                 .build();
     }
 
@@ -74,9 +80,19 @@ public class EmployeeServiceImpl implements EmployeeService {
                         "RD101"
                 );
 
+        OrganizationDTO organizationDTO = new OrganizationDTO
+                (
+                        2L,
+                        "ABC Organization",
+                        "ABC Organization Description",
+                        "ABC101",
+                        LocalDateTime.now()
+                );
+
         return APIResponseDTO.builder()
                 .employee(modelMapper.map(employee, EmployeeDTO.class))
                 .department(departmentDTO)
+                .organization(organizationDTO)
                 .build();
     }
 }
