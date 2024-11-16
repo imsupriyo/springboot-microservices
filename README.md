@@ -3,7 +3,7 @@
 A personal project demonstrating working of Spring Boot Microservices.
 
 ## Architecture Diagram:
-![img_2.png](images/img_2.png)
+![architecture-diagram.jpeg](images/architecture-diagram.jpeg)
 
 ## Microservices:
 * Service Registry
@@ -22,8 +22,8 @@ A personal project demonstrating working of Spring Boot Microservices.
 * MySQL
 
 ## ER Diagram:
-![img_1.png](images/img_1.png)
+![ER-diagram.png](images/ER-diagram.png)
 
 ## Distributed Tracing using Zipkin:
 
-![img.png](images/img.png)
+![zipkin-dependencies.png](images/zipkin-dependencies.png)
