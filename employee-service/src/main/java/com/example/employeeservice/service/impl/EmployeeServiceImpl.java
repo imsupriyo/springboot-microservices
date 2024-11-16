@@ -25,11 +25,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeServiceImpl.class);
     private EmployeeRepository employeeRepository;
     private ModelMapper modelMapper;
-    //    private RestTemplate restTemplate;
+//    private RestTemplate restTemplate;
 //    private WebClient webClient;
-    private APIClient apiClient;
-    private APIClientOrganizationService clientOrganizationService;
-
+    private RetryService retryService;
 
     @Override
     public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO) {
@@ -39,8 +37,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         return modelMapper.map(savedEmployee, EmployeeDTO.class);
     }
 
-    //    @CircuitBreaker(name = "${spring.application.name}", fallbackMethod = "getDefaultEmployee")
-    @Retry(name = "${spring.application.name}", fallbackMethod = "getDefaultEmployee")
     @Override
     public APIResponseDTO getEmployeeById(Long employeeId) {
         LOGGER.info("inside getEmployeeById() method");
@@ -57,42 +53,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 //                .bodyToMono(DepartmentDTO.class)
 //                .block();
 
-        DepartmentDTO departmentDTO = apiClient.getDepartment(employee.getDepartmentCode());
-        OrganizationDTO organizationDTO = clientOrganizationService.getOrganization(employee.getOrganizationCode());
         return APIResponseDTO.builder()
                 .employee(modelMapper.map(employee, EmployeeDTO.class))
-                .department(departmentDTO)
-                .organization(organizationDTO)
-                .build();
-    }
-
-    public APIResponseDTO getDefaultEmployee(Long employeeId, Exception e) {
-        LOGGER.info("inside getDefaultEmployee() method");
-
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("employee", "id", employeeId));
-
-        DepartmentDTO departmentDTO = new DepartmentDTO
-                (
-                        2L,
-                        "R&D",
-                        "Research and Development",
-                        "RD101"
-                );
-
-        OrganizationDTO organizationDTO = new OrganizationDTO
-                (
-                        2L,
-                        "ABC Organization",
-                        "ABC Organization Description",
-                        "ABC101",
-                        LocalDateTime.now()
-                );
-
-        return APIResponseDTO.builder()
-                .employee(modelMapper.map(employee, EmployeeDTO.class))
-                .department(departmentDTO)
-                .organization(organizationDTO)
+                .department(retryService.getDepartment(employee.getDepartmentCode()))
+                .organization(retryService.getOrganization(employee.getOrganizationCode()))
                 .build();
     }
 }
