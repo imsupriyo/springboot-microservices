@@ -2,6 +2,7 @@ package com.example.organizationservice.service.impl;
 
 import com.example.organizationservice.DTO.OrganizationDTO;
 import com.example.organizationservice.entity.Organization;
+import com.example.organizationservice.exception.ResourceNotFoundException;
 import com.example.organizationservice.repository.OrganizationRepository;
 import com.example.organizationservice.service.OrganizationService;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public OrganizationDTO getOrganization(String organizationCode) {
         Organization organization = organizationRepository.findByOrganizationCode(organizationCode)
-                .orElseThrow(() -> new RuntimeException());
+                .orElseThrow(() -> new ResourceNotFoundException("organization", "organizationCode", organizationCode));
 
         return entityToDTO(organization);
     }
