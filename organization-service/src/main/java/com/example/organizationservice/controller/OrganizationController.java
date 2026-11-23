@@ -30,15 +30,33 @@ public class OrganizationController {
 
     @Operation(
             summary = "get organization REST API",
-            description = "get organization REST API is used fetch a department from the database"
+            description = "get organization REST API is used fetch a organization from the database"
     )
     @ApiResponse(
             responseCode = "200",
             description = "Http Status 200 SUCCESS"
     )
-    @GetMapping("{organization-code}")
-    public ResponseEntity<OrganizationDTO> getOrganization(@PathVariable("organization-code") String organizationCode) {
+    @GetMapping("{organizationCode}")
+    public ResponseEntity<OrganizationDTO> getOrganization(@PathVariable String organizationCode) {
         return ResponseEntity.ok(organizationService.getOrganization(organizationCode));
     }
 
+
+    @PutMapping("{organizationCode}")
+    public ResponseEntity<OrganizationDTO> updateOrganization(@PathVariable String organizationCode, @RequestBody OrganizationDTO organization) {
+        return ResponseEntity.ok(organizationService.updateOrganization(organizationCode, organization));
+    }
+
+
+    @PatchMapping("{organizationCode}")
+    public ResponseEntity<OrganizationDTO> partialUpdateOrganization(@PathVariable String organizationCode, @RequestBody OrganizationDTO organization) {
+        return ResponseEntity.ok(organizationService.patchOrganization(organizationCode, organization));
+    }
+
+
+    @DeleteMapping("{organizationCode}")
+    public ResponseEntity<String> deleteOrganization(@PathVariable String organizationCode) {
+        organizationService.deleteOrganization(organizationCode);
+        return ResponseEntity.ok(organizationCode + " deleted");
+    }
 }

@@ -8,6 +8,7 @@ A personal project demonstrating working of Spring Boot Microservices.
 ## Microservices:
 * Service Registry
 * CONFIG-SERVER
+* AUTH-SERVER
 * API-GATEWAY
 * Organization Service
 * Department Service
@@ -20,6 +21,7 @@ A personal project demonstrating working of Spring Boot Microservices.
 * Maven
 * Hibernate
 * MySQL
+* Redis
 
 ## ER Diagram:
 ![ER-diagram.png](images/ER-diagram.png)

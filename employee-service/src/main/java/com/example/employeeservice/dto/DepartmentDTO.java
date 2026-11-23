@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class DepartmentDTO {
-    @Schema(description = "Department id")
-    private Long id;
     @Schema(description = "Department name")
     private String departmentName;
     @Schema(description = "Department description")

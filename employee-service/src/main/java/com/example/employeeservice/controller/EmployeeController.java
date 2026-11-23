@@ -31,6 +31,7 @@ public class EmployeeController {
         return new ResponseEntity<>(employeeService.saveEmployee(employeeDTO), HttpStatus.CREATED);
     }
 
+
     @Operation(
             summary = "get employee REST API",
             description = "get employee REST API is used fetch an employee from the database"
@@ -39,8 +40,27 @@ public class EmployeeController {
             responseCode = "200",
             description = "Http Status 200 SUCCESS"
     )
-    @GetMapping("{id}")
-    public ResponseEntity<APIResponseDTO> getEmployee(@PathVariable("id") Long employeeId) {
+    @GetMapping("{employeeId}")
+    public ResponseEntity<APIResponseDTO> getEmployee(@PathVariable Long employeeId) {
         return ResponseEntity.ok(employeeService.getEmployeeById(employeeId));
+    }
+
+
+    @PutMapping("{employeeId}")
+    public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable Long employeeId, @RequestBody EmployeeDTO employee) {
+        return ResponseEntity.ok(employeeService.updateEmployee(employeeId, employee));
+    }
+
+
+    @PatchMapping("{employeeId}")
+    public ResponseEntity<EmployeeDTO> partialUpdateEmployee(@PathVariable Long employeeId, @RequestBody EmployeeDTO employee) {
+        return ResponseEntity.ok(employeeService.patchEmployee(employeeId, employee));
+    }
+
+
+    @DeleteMapping("{employeeId}")
+    public ResponseEntity<String> deleteEmployee(@PathVariable Long employeeId) {
+        employeeService.deleteEmployee(employeeId);
+        return ResponseEntity.ok("Employee id" + employeeId + " deleted");
     }
 }

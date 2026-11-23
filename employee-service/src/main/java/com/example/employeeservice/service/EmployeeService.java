@@ -7,4 +7,11 @@ public interface EmployeeService {
     EmployeeDTO saveEmployee(EmployeeDTO employeeDTO);
 
     APIResponseDTO getEmployeeById(Long employeeId);
+
+    EmployeeDTO updateEmployee(Long employeeId, EmployeeDTO employee);
+
+    EmployeeDTO patchEmployee(Long employeeId, EmployeeDTO employee);
+
+    void deleteEmployee(Long employeeId);
+
 }

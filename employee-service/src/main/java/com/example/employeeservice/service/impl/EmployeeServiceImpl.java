@@ -1,45 +1,44 @@
 package com.example.employeeservice.service.impl;
 
 import com.example.employeeservice.dto.APIResponseDTO;
-import com.example.employeeservice.dto.DepartmentDTO;
 import com.example.employeeservice.dto.EmployeeDTO;
-import com.example.employeeservice.dto.OrganizationDTO;
 import com.example.employeeservice.entity.Employee;
+import com.example.employeeservice.exception.EmployeeNotFoundException;
 import com.example.employeeservice.exception.ResourceNotFoundException;
 import com.example.employeeservice.repository.EmployeeRepository;
-import com.example.employeeservice.service.APIClient;
-import com.example.employeeservice.service.APIClientOrganizationService;
 import com.example.employeeservice.service.EmployeeService;
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
+@Slf4j
 @Service
 @AllArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeServiceImpl.class);
     private EmployeeRepository employeeRepository;
     private ModelMapper modelMapper;
-//    private RestTemplate restTemplate;
+    //    private RestTemplate restTemplate;
 //    private WebClient webClient;
     private RetryService retryService;
 
+    @CachePut(value = "employees", key = "#result.id")
     @Override
     public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO) {
-        Employee employee = modelMapper.map(employeeDTO, Employee.class);
-
-        Employee savedEmployee = employeeRepository.save(employee);
-        return modelMapper.map(savedEmployee, EmployeeDTO.class);
+        return modelMapper.map(
+                employeeRepository.save(modelMapper.typeMap(EmployeeDTO.class, Employee.class)
+                        .addMappings(mapper -> mapper.skip(Employee::setId)).map(employeeDTO)),
+                EmployeeDTO.class);
     }
 
+    @Cacheable(value = "employees", key = "#employeeId")
     @Override
     public APIResponseDTO getEmployeeById(Long employeeId) {
-        LOGGER.info("inside getEmployeeById() method");
+        log.info("inside getEmployeeById() method");
 
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("employee", "id", employeeId));
@@ -58,5 +57,53 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .department(retryService.getDepartment(employee.getDepartmentCode()))
                 .organization(retryService.getOrganization(employee.getOrganizationCode()))
                 .build();
+    }
+
+    @CachePut(value = "employees", key = "#employeeId")
+    @Transactional
+    @Override
+    public EmployeeDTO updateEmployee(Long employeeId, EmployeeDTO employee) {
+        Employee existingEmployee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new EmployeeNotFoundException(
+                        "Employee not found with id " + employeeId));
+
+        modelMapper.typeMap(EmployeeDTO.class, Employee.class)
+                .addMappings(mapper -> mapper.skip(Employee::setId))
+                .map(employee, existingEmployee);
+
+        Employee updatedEmployee = employeeRepository.save(existingEmployee);
+
+        return modelMapper.map(updatedEmployee, EmployeeDTO.class);
+    }
+
+    @CacheEvict(value = "employees", key = "#employeeId")
+    @Transactional
+    @Override
+    public void deleteEmployee(Long employeeId) {
+        employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id " + employeeId));
+        employeeRepository.deleteById(employeeId);
+    }
+
+    @CachePut(value = "employees", key = "#employeeId")
+    @Transactional
+    @Override
+    public EmployeeDTO patchEmployee(Long employeeId, EmployeeDTO employee) {
+
+        Employee fetchedEmp = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id " + employeeId));
+
+        if (employee.getEmail() != null)
+            fetchedEmp.setEmail(employee.getEmail());
+        if (employee.getFirstName() != null)
+            fetchedEmp.setFirstName(employee.getFirstName());
+        if (employee.getLastName() != null)
+            fetchedEmp.setLastName(employee.getLastName());
+        if (employee.getDepartmentCode() != null)
+            fetchedEmp.setDepartmentCode(employee.getDepartmentCode());
+        if (employee.getOrganizationCode() != null)
+            fetchedEmp.setOrganizationCode(employee.getOrganizationCode());
+
+        return modelMapper.map(employeeRepository.save(fetchedEmp), EmployeeDTO.class);
     }
 }

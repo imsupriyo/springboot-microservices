@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 public class OrganizationDTO {
-    @Schema(description = "Organization id")
-    private Long id;
     @Schema(description = "Organization name")
     private String organizationName;
     @Schema(description = "Organization description")
