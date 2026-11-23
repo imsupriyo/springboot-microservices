@@ -18,12 +18,12 @@ public class RetryService {
     private APIClient apiClient;
     private APIClientOrganizationService clientOrganizationService;
 
-    @Retry(name = "organizationRetry", fallbackMethod = "getDefaultOrganization")
+    @Retry(name = "${spring.application.name}", fallbackMethod = "getDefaultOrganization")
     public OrganizationDTO getOrganization(String organizationCode) {
         return clientOrganizationService.getOrganization(organizationCode);
     }
 
-    @Retry(name = "departmentRetry", fallbackMethod = "getDefaultDepartment")
+    @Retry(name = "${spring.application.name}", fallbackMethod = "getDefaultDepartment")
     public DepartmentDTO getDepartment(String departmentCode) {
         return apiClient.getDepartment(departmentCode);
     }

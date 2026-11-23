@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 EmployeeDTO.class);
     }
 
-    @Cacheable(value = "employees", key = "#employeeId")
+    @Cacheable(value = "employeeDetails", key = "#employeeId")
     @Override
     public APIResponseDTO getEmployeeById(Long employeeId) {
         log.info("inside getEmployeeById() method");
@@ -59,7 +60,14 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .build();
     }
 
-    @CachePut(value = "employees", key = "#employeeId")
+    @Caching(
+            put = {
+                    @CachePut(value = "employees", key = "#employeeId")
+            },
+            evict = {
+                    @CacheEvict(value = "employeeDetails", key = "#employeeId")
+            }
+    )
     @Transactional
     @Override
     public EmployeeDTO updateEmployee(Long employeeId, EmployeeDTO employee) {

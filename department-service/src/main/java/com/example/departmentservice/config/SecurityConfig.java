@@ -27,10 +27,21 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+                        // Read operations
                         .requestMatchers(HttpMethod.GET, "/api/departments/**")
                         .hasAuthority("SCOPE_department.read")
 
+                        // Write operations
                         .requestMatchers(HttpMethod.POST, "/api/departments/**")
+                        .hasAuthority("SCOPE_department.write")
+
+                        .requestMatchers(HttpMethod.PUT, "/api/departments/**")
+                        .hasAuthority("SCOPE_department.write")
+
+                        .requestMatchers(HttpMethod.PATCH, "/api/departments/**")
+                        .hasAuthority("SCOPE_department.write")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/departments/**")
                         .hasAuthority("SCOPE_department.write")
 
                         .anyRequest().authenticated()

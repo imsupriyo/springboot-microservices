@@ -26,7 +26,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department department = modelMapper.map(departmentDTO, Department.class);
         Department savedDepartment = departmentRepository.save(department);
 
-        return modelMapper.map(department, DepartmentDTO.class);
+        return modelMapper.map(savedDepartment, DepartmentDTO.class);
     }
 
     @Cacheable(value = "departments", key = "#departmentCode")
@@ -44,7 +44,10 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department existingDepartment = departmentRepository.findByDepartmentCode(departmentCode)
                 .orElseThrow(() -> new DepartmentNotFoundException("Department not found with code " + departmentCode));
 
-        modelMapper.map(departmentDTO, existingDepartment);
+        modelMapper.typeMap(DepartmentDTO.class, Department.class)
+                .addMappings(mapper ->
+                        mapper.skip(Department::setDepartmentCode))
+                .map(departmentDTO, existingDepartment);
 
         return modelMapper.map(
                 departmentRepository.save(existingDepartment),

@@ -46,7 +46,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization existingOrganization = organizationRepository.findByOrganizationCode(organizationCode)
                 .orElseThrow(() -> new OrganizationNotFoundException("Organization not found with code " + organizationCode));
 
-        modelMapper.map(organizationDTO, existingOrganization);
+        modelMapper.typeMap(OrganizationDTO.class, Organization.class)
+                .addMappings(mapper -> {
+                    mapper.skip(Organization::setOrganizationCode);
+                    mapper.skip(Organization::setCreatedDate);
+                })
+                .map(organizationDTO, existingOrganization);
 
         return entityToDTO(organizationRepository.save(existingOrganization));
     }
